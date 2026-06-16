@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Expense</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, sans-serif;
+}
+
+body{
+background:#f4f6f9;
+padding:30px;
+}
+
+.container{
+max-width:1000px;
+margin:auto;
+background:#fff;
+padding:25px;
+border-radius:10px;
+box-shadow:0 2px 10px rgba(0,0,0,0.2);
+}
+
+h2{
+text-align:center;
+color:#d32f2f;
+margin-bottom:20px;
+}
+
+.summary{
+background:#ffebee;
+padding:15px;
+border-radius:8px;
+margin-bottom:20px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+color:#d32f2f;
+}
+
+form{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+.form-group{
+display:flex;
+flex-direction:column;
+}
+
+label{
+font-weight:bold;
+margin-bottom:5px;
+}
+
+input,
+select,
+textarea{
+padding:10px;
+border:1px solid #ccc;
+border-radius:5px;
+font-size:15px;
+}
+
+textarea{
+resize:none;
+height:80px;
+}
+
+.full{
+grid-column:1/3;
+}
+
+button{
+padding:12px;
+border:none;
+background:#d32f2f;
+color:white;
+font-size:16px;
+border-radius:5px;
+cursor:pointer;
+}
+
+button:hover{
+background:#b71c1c;
+}
+
+table{
+width:100%;
+margin-top:25px;
+border-collapse:collapse;
+}
+
+th{
+background:#d32f2f;
+color:white;
+padding:12px;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #ddd;
+text-align:center;
+}
+
+.deleteBtn{
+background:red;
+padding:6px 10px;
+color:white;
+border:none;
+border-radius:4px;
+cursor:pointer;
+}
+
+.deleteBtn:hover{
+background:darkred;
+}
+
+@media(max-width:768px){
+
+form{
+grid-template-columns:1fr;
+}
+
+.full{
+grid-column:1;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Add Expense</h2>
+
+<div class="summary">
+Total Expenses: ₹<span id="totalExpense">0</span>
+</div>
+
+<form id="expenseForm">
+
+<div class="form-group">
+<label>Amount (₹)</label>
+<input type="number" id="amount" required>
+</div>
+
+<div class="form-group">
+<label>Category</label>
+<select id="category" required>
+<option value="">Select Category</option>
+<option>Food</option>
+<option>Travel</option>
+<option>Shopping</option>
+<option>Entertainment</option>
+<option>Medical</option>
+<option>Education</option>
+<option>Bills</option>
+<option>Rent</option>
+<option>Other</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Date</label>
+<input type="date" id="date" required>
+</div>
+
+<div class="form-group">
+<label>Payment Method</label>
+<select id="method" required>
+<option value="">Select Method</option>
+<option>Cash</option>
+<option>UPI</option>
+<option>Debit Card</option>
+<option>Credit Card</option>
+<option>Net Banking</option>
+</select>
+</div>
+
+<div class="form-group full">
+<label>Description</label>
+<textarea id="description"></textarea>
+</div>
+
+<div class="full">
+<button type="submit">Save Expense</button>
+</div>
+
+</form>
+
+<table>
+
+<thead>
+<tr>
+<th>Amount</th>
+<th>Category</th>
+<th>Date</th>
+<th>Method</th>
+<th>Description</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="expenseTable">
+</tbody>
+
+</table>
+
+</div>
+
+<script>
+
+let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+
+function updateTotalExpense(){
+
+let total = expenses.reduce((sum,item)=>
+sum + Number(item.amount),0);
+
+document.getElementById("totalExpense").innerText = total;
+}
+
+function displayExpenses(){
+
+const table = document.getElementById("expenseTable");
+
+table.innerHTML = "";
+
+expenses.forEach((expense,index)=>{
+
+table.innerHTML += `
+<tr>
+<td>₹${expense.amount}</td>
+<td>${expense.category}</td>
+<td>${expense.date}</td>
+<td>${expense.method}</td>
+<td>${expense.description}</td>
+<td>
+<button class="deleteBtn"
+onclick="deleteExpense(${index})">
+Delete
+</button>
+</td>
+</tr>
+`;
+
+});
+
+updateTotalExpense();
+
+}
+
+document.getElementById("expenseForm")
+.addEventListener("submit",function(e){
+
+e.preventDefault();
+
+const expense = {
+
+amount: document.getElementById("amount").value,
+category: document.getElementById("category").value,
+date: document.getElementById("date").value,
+method: document.getElementById("method").value,
+description: document.getElementById("description").value
+
+};
+
+expenses.push(expense);
+
+localStorage.setItem(
+"expenses",
+JSON.stringify(expenses)
+);
+
+displayExpenses();
+
+this.reset();
+
+alert("Expense Added Successfully!");
+
+});
+
+function deleteExpense(index){
+
+if(confirm("Delete this expense?")){
+
+expenses.splice(index,1);
+
+localStorage.setItem(
+"expenses",
+JSON.stringify(expenses)
+);
+
+displayExpenses();
+
+}
+
+}
+
+displayExpenses();
+
+</script>
+
+</body>
+</html>
